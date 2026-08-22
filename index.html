@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#173f35">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Rejseklar">
+    <meta name="description" content="Offline rejsecheckliste til campingvognen">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./assets/icons/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/apple-touch-icon.png">
+    <link rel="stylesheet" href="./assets/styles/tokens.css">
+    <link rel="stylesheet" href="./assets/styles/base.css">
+    <link rel="stylesheet" href="./assets/styles/components.css">
+    <title>Rejseklar</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Gå til indhold</a>
+    <div id="app" class="app-shell" aria-live="polite">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Campingvogn</p>
+          <h1>Rejseklar</h1>
+        </div>
+        <span id="storage-status" class="status-pill">Starter…</span>
+      </header>
+      <aside id="update-banner" class="update-banner" hidden aria-live="polite">
+        <span>En ny version af Rejseklar er klar.</span>
+        <button type="button" data-apply-update>Opdatér appen</button>
+      </aside>
+
+      <main id="main-content" class="main-content" tabindex="-1"></main>
+
+      <nav class="bottom-nav" aria-label="Primær navigation">
+        <a href="#/current" data-route="current"><span aria-hidden="true">⌂</span>Aktuel tur</a>
+        <a href="#/history" data-route="history"><span aria-hidden="true">◷</span>Historik</a>
+        <a href="#/settings" data-route="settings"><span aria-hidden="true">⚙</span>Indstillinger</a>
+      </nav>
+      <dialog id="editor-dialog" class="editor-dialog" aria-label="Redigér data"></dialog>
+    </div>
+    <noscript>Appen kræver JavaScript for at kunne gemme og vise dine checklister.</noscript>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
