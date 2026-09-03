@@ -28,7 +28,7 @@ test("all 102 PDF entries are represented exactly once", () => {
   assert.equal(initialPersonItemTemplates.length, 12);
   assert.equal(initialCategories.length, 16);
   assert.equal(initialPackingRules.length, 8);
-  assert.equal(SEED_DATA_VERSION, 2);
+  assert.equal(SEED_DATA_VERSION, 3);
   const sourceRecords = [...initialMasterItems, ...initialPersonItemTemplates]
     .filter((item) => item.sourceReference?.startsWith("Checkliste"));
   assert.equal(new Set(sourceRecords.map((item) => item.sourceReference)).size, 102);
@@ -36,6 +36,8 @@ test("all 102 PDF entries are represented exactly once", () => {
   assert.equal(cycles?.inclusionType, "optional");
   assert.ok(initialMasterItems.filter((item) => ["pdf-93", "pdf-94"].includes(item.id))
     .every((item) => item.activationCondition?.referencedMasterItemId === cycles.id));
+  assert.ok(initialMasterItems.filter((item) => ["pdf-79", "pdf-80", "pdf-81", "pdf-82", "pdf-83", "pdf-84", "pdf-87"].includes(item.id))
+    .every((item) => item.active === false));
 });
 
 test("trip inputs preserve zero quantities and reject impossible dates", () => {

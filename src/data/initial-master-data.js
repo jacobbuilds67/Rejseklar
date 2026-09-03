@@ -107,12 +107,12 @@ export const initialMasterItems = [
   packing(64, "cat-pack-misc", "Pas", optional),
   packing(65, "cat-pack-misc", "Kort over destinationen", optional),
   packing(66, "cat-pack-misc", "NAF-bøger", optional),
-  packing(79, "cat-pack-tent", "Firepersonerstelt", optional),
-  packing(80, "cat-pack-tent", "Soveposer", { ...optional, quantityMode: "rule", packingRuleId: "rule-per-person" }),
-  packing(81, "cat-pack-tent", "Luftmadrasser", { ...optional, quantityMode: "rule", packingRuleId: "rule-per-person" }),
-  packing(82, "cat-pack-tent", "Presenning til telt", optional),
-  packing(83, "cat-pack-tent", "Liggeunderlag", { ...optional, quantityMode: "rule", packingRuleId: "rule-per-person" }),
-  packing(84, "cat-pack-tent", "Pumpe til luftmadras", optional),
+  packing(79, "cat-pack-tent", "Firepersonerstelt", { ...optional, active: false }),
+  packing(80, "cat-pack-tent", "Soveposer", { ...optional, quantityMode: "rule", packingRuleId: "rule-per-person", active: false }),
+  packing(81, "cat-pack-tent", "Luftmadrasser", { ...optional, quantityMode: "rule", packingRuleId: "rule-per-person", active: false }),
+  packing(82, "cat-pack-tent", "Presenning til telt", { ...optional, active: false }),
+  packing(83, "cat-pack-tent", "Liggeunderlag", { ...optional, quantityMode: "rule", packingRuleId: "rule-per-person", active: false }),
+  packing(84, "cat-pack-tent", "Pumpe til luftmadras", { ...optional, active: false }),
 
   record("equipment-cycles", {
     scope: "packing", categoryId: "cat-pack-luggage", title: "Cykler medbringes", description: "Aktiverer de cykelrelaterede punkter i Flight Check.",
@@ -140,7 +140,7 @@ export const initialMasterItems = [
   ...[
     [85, "cat-flight-inside", "Ingen tunge ting i overskabene"],
     [86, "cat-flight-inside", "Skufferne er låst"],
-    [87, "cat-flight-inside", "Bordet er slået ned"],
+    [87, "cat-flight-inside", "Bordet er slået ned", null, false],
     [88, "cat-flight-inside", "Ingen løse genstande"],
     [89, "cat-flight-outside", "Gassen er lukket"],
     [90, "cat-flight-inside", "Vinduerne er lukket"],
@@ -156,10 +156,10 @@ export const initialMasterItems = [
     [100, "cat-flight-hitch", "Lygterne virker"],
     [101, "cat-flight-hitch", "Spejlene er korrekt monteret og indstillet"],
     [102, "cat-flight-hitch", "Træktøjet er fastgjort korrekt"]
-  ].map(([id, categoryId, title, conditionId]) => record(`pdf-${id}`, {
+  ].map(([id, categoryId, title, conditionId, active = true]) => record(`pdf-${id}`, {
     scope: "flightCheck", categoryId, title, description: "", inclusionType: "always", personId: null,
     quantityMode: "none", fixedQuantity: null, packingRuleId: null, unit: "", sortOrder: id,
-    active: true, sourceReference: `Checkliste CV_20052023.pdf, punkt ${id}`,
+    active, sourceReference: `Checkliste CV_20052023.pdf, punkt ${id}`,
     activationCondition: conditionId ? { kind: "selectedEquipment", referencedMasterItemId: conditionId } : null
   }))
 ];

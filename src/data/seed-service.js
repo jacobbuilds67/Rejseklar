@@ -2,7 +2,9 @@ import { STORE_NAMES } from "../config.js";
 import { runTransaction } from "../storage/database.js";
 import { initialCategories, initialMasterItems, initialPackingRules, initialPersonItemTemplates } from "./initial-master-data.js";
 
-export const SEED_DATA_VERSION = 2;
+export const SEED_DATA_VERSION = 3;
+
+const VERSION_3_RETIRED_ITEM_IDS = ["pdf-79", "pdf-80", "pdf-81", "pdf-82", "pdf-83", "pdf-84", "pdf-87"];
 
 function migrateVersion2(masterStore) {
   const cycles = initialMasterItems.find((item) => item.id === "equipment-cycles");
@@ -26,10 +28,44 @@ function migrateVersion2(masterStore) {
   });
 }
 
+function migrateVersion3(masterStore, tripsStore) {
+  VERSION_3_RETIRED_ITEM_IDS.forEach((id) => {
+    const request = masterStore.get(id);
+    request.onsuccess = () => {
+      const item = request.result;
+      if (item?.active !== false) {
+        masterStore.put({
+          ...item,
+          active: false,
+          updatedAt: new Date().toISOString(),
+          revision: (item.revision ?? 0) + 1
+        });
+      }
+    };
+  });
+  const tripsRequest = tripsStore.getAll();
+  tripsRequest.onsuccess = () => {
+    tripsRequest.result.filter((trip) => trip.status === "active" && !trip.packingClosedAt).forEach((trip) => {
+      let changed = false;
+      const packingItems = trip.packingItems.map((item) => {
+        if (!["pdf-79", "pdf-80", "pdf-81", "pdf-82", "pdf-83", "pdf-84"].includes(item.sourceMasterItemId) || item.removed) return item;
+        changed = true;
+        return { ...item, removed: true };
+      });
+      if (changed) tripsStore.put({
+        ...trip,
+        packingItems,
+        updatedAt: new Date().toISOString(),
+        revision: (trip.revision ?? 0) + 1
+      });
+    });
+  };
+}
+
 export async function seedInitialData(settingsRecord) {
   if ((settingsRecord.seedDataVersion ?? 0) >= SEED_DATA_VERSION) return false;
 
-  const storeNames = [STORE_NAMES.settings, STORE_NAMES.categories, STORE_NAMES.packingRules, STORE_NAMES.personItemTemplates, STORE_NAMES.masterItems];
+  const storeNames = [STORE_NAMES.settings, STORE_NAMES.categories, STORE_NAMES.packingRules, STORE_NAMES.personItemTemplates, STORE_NAMES.masterItems, STORE_NAMES.trips];
   await runTransaction(storeNames, "readwrite", (transaction) => {
     const addAll = (storeName, records) => records.forEach((item) => transaction.objectStore(storeName).put(item));
     if ((settingsRecord.seedDataVersion ?? 0) === 0) {
@@ -37,8 +73,10 @@ export async function seedInitialData(settingsRecord) {
       addAll(STORE_NAMES.packingRules, initialPackingRules);
       addAll(STORE_NAMES.personItemTemplates, initialPersonItemTemplates);
       addAll(STORE_NAMES.masterItems, initialMasterItems);
-    } else if ((settingsRecord.seedDataVersion ?? 0) < 2) {
-      migrateVersion2(transaction.objectStore(STORE_NAMES.masterItems));
+    } else {
+      const masterStore = transaction.objectStore(STORE_NAMES.masterItems);
+      if ((settingsRecord.seedDataVersion ?? 0) < 2) migrateVersion2(masterStore);
+      if ((settingsRecord.seedDataVersion ?? 0) < 3) migrateVersion3(masterStore, transaction.objectStore(STORE_NAMES.trips));
     }
     transaction.objectStore(STORE_NAMES.settings).put({
       ...settingsRecord,

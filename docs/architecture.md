@@ -37,3 +37,5 @@ Separate repositories skjuler IndexedDB for resten af appen. En fremtidig synkro
 ## Datamigrering
 
 `seedDataVersion` styrer små, målrettede opgraderinger af standarddata. En opgradering må ikke genindlæse hele startsættet oven i brugerens ændringer. Version 2 tilføjer derfor kun det særskilte valg `Cykler medbringes` og flytter de oprindelige cykelbetingelser, hvis de stadig har den tidligere standardværdi.
+
+Version 3 deaktiverer Flight Check-punktet om det tidligere nedslåelige bord samt de seks teltudstyrspunkter. Teltpunkterne skjules også på en igangværende pakkeliste, hvis første afgang endnu ikke er gennemført. Afsluttede eller låste snapshots berøres ikke.

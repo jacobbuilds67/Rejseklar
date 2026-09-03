@@ -37,3 +37,7 @@ Punkterne om låsning af cykelstativ og fastspænding af cykler aktiveres af det
 ## Nye klargøringspunkter
 
 PDF'en har ingen særskilt klargøringssektion. De ti klargøringspunkter i standarddata er derfor mærket med kildehenvisningen `Appens godkendte klargøringsliste` og kan skelnes fra PDF-importen.
+
+## Senere ændringer til standarddata
+
+Den 3. september 2026 blev punkt 87, `Bordet er slået ned`, deaktiveret, fordi bordet er fast i den nye campingvogn. Samtidig blev teltudstyrspunkterne 79–84 deaktiveret efter brugerens beslutning. Punkterne bevares som inaktive masterdata for sporbarhed og kan genaktiveres under Indstillinger. Eksisterende tursnapshots og gennemførte Flight Checks ændres ikke.

@@ -4,7 +4,7 @@ import { runTransaction } from "../storage/database.js";
 
 export const BACKUP_FORMAT = "rejseklar-backup";
 export const BACKUP_VERSION = 1;
-export const APP_VERSION = "1.0.0";
+export const APP_VERSION = "1.1.0";
 
 const storeNames = Object.values(STORE_NAMES);
 
