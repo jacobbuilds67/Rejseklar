@@ -5,6 +5,19 @@ import { initialCategories, initialMasterItems, initialPackingRules, initialPers
 export const SEED_DATA_VERSION = 3;
 
 const VERSION_3_RETIRED_ITEM_IDS = ["pdf-79", "pdf-80", "pdf-81", "pdf-82", "pdf-83", "pdf-84", "pdf-87"];
+const VERSION_3_RETIRED_PACKING_IDS = new Set(VERSION_3_RETIRED_ITEM_IDS.filter((id) => id !== "pdf-87"));
+
+export function retireTentItemsFromActiveTrip(trip) {
+  if (trip?.status !== "active" || trip.packingClosedAt || !Array.isArray(trip.packingItems)) return trip;
+  let changed = false;
+  const packingItems = trip.packingItems.map((item) => {
+    if (!VERSION_3_RETIRED_PACKING_IDS.has(item.sourceMasterItemId) || item.removed) return item;
+    changed = true;
+    return { ...item, removed: true };
+  });
+  if (!changed) return trip;
+  return { ...trip, packingItems };
+}
 
 function migrateVersion2(masterStore) {
   const cycles = initialMasterItems.find((item) => item.id === "equipment-cycles");
@@ -45,16 +58,10 @@ function migrateVersion3(masterStore, tripsStore) {
   });
   const tripsRequest = tripsStore.getAll();
   tripsRequest.onsuccess = () => {
-    tripsRequest.result.filter((trip) => trip.status === "active" && !trip.packingClosedAt).forEach((trip) => {
-      let changed = false;
-      const packingItems = trip.packingItems.map((item) => {
-        if (!["pdf-79", "pdf-80", "pdf-81", "pdf-82", "pdf-83", "pdf-84"].includes(item.sourceMasterItemId) || item.removed) return item;
-        changed = true;
-        return { ...item, removed: true };
-      });
-      if (changed) tripsStore.put({
-        ...trip,
-        packingItems,
+    tripsRequest.result.forEach((trip) => {
+      const migrated = retireTentItemsFromActiveTrip(trip);
+      if (migrated !== trip) tripsStore.put({
+        ...migrated,
         updatedAt: new Date().toISOString(),
         revision: (trip.revision ?? 0) + 1
       });

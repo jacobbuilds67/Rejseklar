@@ -39,3 +39,7 @@ Separate repositories skjuler IndexedDB for resten af appen. En fremtidig synkro
 `seedDataVersion` styrer små, målrettede opgraderinger af standarddata. En opgradering må ikke genindlæse hele startsættet oven i brugerens ændringer. Version 2 tilføjer derfor kun det særskilte valg `Cykler medbringes` og flytter de oprindelige cykelbetingelser, hvis de stadig har den tidligere standardværdi.
 
 Version 3 deaktiverer Flight Check-punktet om det tidligere nedslåelige bord samt de seks teltudstyrspunkter. Teltpunkterne skjules også på en igangværende pakkeliste, hvis første afgang endnu ikke er gennemført. Afsluttede eller låste snapshots berøres ikke.
+
+Appstarten er tolerant over for ufuldstændige data fra tidlige udviklingsversioner. En opdatering af standarddata må ikke blokere adgang til eksisterende lokale ture; ved en migrationsfejl åbnes appen derfor med de eksisterende data og en tydelig status om, at masterdataopdateringen afventer.
+
+Service Workeren forsøger at hente appfiler fra netværket, før den bruger den lokale kopi. Dermed kan en fejlrettelse erstatte en defekt cache, mens den komplette appskal fortsat fungerer som fallback uden internet.

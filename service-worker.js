@@ -1,4 +1,4 @@
-const CACHE_VERSION = "rejseklar-shell-v10";
+const CACHE_VERSION = "rejseklar-shell-v11";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -63,13 +63,17 @@ async function navigationResponse(request) {
 
 async function assetResponse(request) {
   const cached = await caches.match(request);
-  if (cached) return cached;
-  const response = await fetch(request);
-  if (response?.ok) {
-    const cache = await caches.open(CACHE_VERSION);
-    cache.put(request, response.clone());
+  try {
+    const response = await fetch(request);
+    if (response?.ok) {
+      const cache = await caches.open(CACHE_VERSION);
+      cache.put(request, response.clone());
+      return response;
+    }
+    return cached || response;
+  } catch {
+    return cached || Response.error();
   }
-  return response;
 }
 
 self.addEventListener("fetch", (event) => {

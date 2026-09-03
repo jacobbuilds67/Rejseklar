@@ -26,7 +26,14 @@ async function ensureSettings() {
     };
     await settings.put(metadata);
   }
-  await seedInitialData(metadata);
+  try {
+    await seedInitialData(metadata);
+    return null;
+  } catch (error) {
+    if ((metadata.seedDataVersion ?? 0) === 0) throw error;
+    console.error("Masterdataopdateringen kunne ikke gennemføres.", error);
+    return "Dine data er åbnet, men opdateringen af standardpunkter afventer.";
+  }
 }
 
 let activeLocation;
@@ -98,12 +105,12 @@ function updateConnectionStatus() {
 async function startApp() {
   try {
     await openDatabase();
-    await ensureSettings();
+    const startupWarning = await ensureSettings();
     startRouter((location) => renderRoute(location).catch((error) => {
       console.error(error);
       renderFatalError("Skærmen kunne ikke indlæses. Dine eksisterende data er ikke blevet slettet.");
     }));
-    setStorageStatus("ready", "Gemt lokalt");
+    setStorageStatus("ready", startupWarning ? "Data åbnet · opdatering afventer" : "Gemt lokalt");
     window.addEventListener("online", updateConnectionStatus);
     window.addEventListener("offline", updateConnectionStatus);
     registerServiceWorker().catch(() => {

@@ -7,7 +7,7 @@ import { normalizeNonNegativeQuantity, validateIsoDate, validatePackingRule } fr
 import { escapeHtml } from "../src/ui/html.js";
 import { isFlightItemActive } from "../src/domain/flight-check-service.js";
 import { BACKUP_FORMAT, BACKUP_VERSION, validateBackupStructure } from "../src/backup/backup-service.js";
-import { SEED_DATA_VERSION } from "../src/data/seed-service.js";
+import { retireTentItemsFromActiveTrip, SEED_DATA_VERSION } from "../src/data/seed-service.js";
 import { access, readFile } from "node:fs/promises";
 
 test("database schema contains the approved master and history stores", () => {
@@ -47,6 +47,17 @@ test("trip inputs preserve zero quantities and reject impossible dates", () => {
   assert.equal(validateIsoDate("2026-08-21", "Afrejsedato"), "2026-08-21");
   assert.throws(() => validateIsoDate("2026-02-30", "Afrejsedato"), /gyldig dato/);
   assert.throws(() => validateIsoDate("2026-13-01", "Afrejsedato"), /gyldig dato/);
+});
+
+test("masterdata migration tolerates legacy trips and preserves locked snapshots", () => {
+  const legacy = { id: "legacy", status: "active" };
+  assert.equal(retireTentItemsFromActiveTrip(legacy), legacy);
+  const completed = { id: "old", status: "completed", packingItems: [{ sourceMasterItemId: "pdf-79", removed: false }] };
+  assert.equal(retireTentItemsFromActiveTrip(completed), completed);
+  const active = { id: "new", status: "active", packingItems: [{ sourceMasterItemId: "pdf-79", removed: false }, { sourceMasterItemId: "pdf-1", removed: false }] };
+  const migrated = retireTentItemsFromActiveTrip(active);
+  assert.equal(migrated.packingItems[0].removed, true);
+  assert.equal(migrated.packingItems[1].removed, false);
 });
 
 test("user-authored trip content is escaped before rendering", () => {
